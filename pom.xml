@@ -46,7 +46,17 @@
             <artifactId>axon-modelling</artifactId>
             <version>4.5</version>
         </dependency>
-    </dependencies>
+        <dependency>
+            <groupId>org.axonframework</groupId>
+            <artifactId>axon-eventsourcing</artifactId>
+            <version>4.5</version>
+        </dependency>
+		<dependency>
+			<groupId>org.axonframework</groupId>
+			<artifactId>axon-spring</artifactId>
+			<version>4.5</version>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>
