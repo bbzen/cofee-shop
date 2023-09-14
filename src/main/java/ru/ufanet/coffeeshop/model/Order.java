@@ -29,8 +29,8 @@ public class Order {
     private LocalDateTime timestamp;
 
     @CommandHandler
-    public Order(RegisterOrderCommand currentCommand) {
-        log.info("Выполняется RegisterOrderCommand: {}", currentCommand);
+    public Order(CreateOrderCommand currentCommand) {
+        log.info("Выполняется CreateOrderCommand: {}", currentCommand);
         apply(new OrderRegisteredEvent(
                 currentCommand.getOrderId(),
                 currentCommand.getClientId(),

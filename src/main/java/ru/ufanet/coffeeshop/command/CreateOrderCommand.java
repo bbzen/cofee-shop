@@ -6,7 +6,7 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 import java.time.LocalDateTime;
 
 @Data
-public class RegisterOrderCommand {
+public class CreateOrderCommand {
     @TargetAggregateIdentifier
     private final Long orderId;
     private final Long clientId;
