@@ -1,5 +1,6 @@
 package ru.ufanet.coffeeshop.handler;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import ru.ufanet.coffeeshop.repository.OrderRepository;
 
 @Slf4j
 @Component
+@AllArgsConstructor
 public class OrderEventHandler {
     @Autowired
     private OrderCommandHandler orderCommandHandler;
@@ -35,7 +37,7 @@ public class OrderEventHandler {
                 event.getProductCost(),
                 event.getTimestamp());
         Order order = orderCommandHandler.handleCreateOrderCommand(createOrderCommand);
-        eventRepository.save(EventMapper.eventDto(event));
+        eventRepository.save(EventMapper.toEventDto(event));
         return order;
     }
 
@@ -44,28 +46,28 @@ public class OrderEventHandler {
         Order order = orderRepository.findById(event.getOrderId()).orElseThrow(() -> new OrderNotFoundException("Заказ " + event.getOrderId() + " не найден."));
         checkOrderStatus(event.getOrderId());
 
-        eventRepository.save(EventMapper.eventDto(event));
+        eventRepository.save(EventMapper.toEventDto(event));
     }
 
     public void handleOrderInProgressEvent(OrderInProgressEvent event) {
         log.info("Обрабатывается событие OrderReadyEvent: {}", event);
         checkOrderStatus(event.getOrderId());
 
-        eventRepository.save(EventMapper.eventDto(event));
+        eventRepository.save(EventMapper.toEventDto(event));
     }
 
     public void handleOrderDispatchedEvent(OrderDispatchedEvent event) {
         log.info("Обрабатывается событие OrderDispatchedEvent: {}", event);
         checkOrderStatus(event.getOrderId());
 
-        eventRepository.save(EventMapper.eventDto(event));
+        eventRepository.save(EventMapper.toEventDto(event));
     }
 
     public void handleOrderCanceledEvent(OrderCanceledEvent event) {
         log.info("Обрабатывается событие OrderCanceledEvent: {}", event);
         checkOrderExists(event.getOrderId());
 
-        eventRepository.save(EventMapper.eventDto(event));
+        eventRepository.save(EventMapper.toEventDto(event));
     }
 
     private void checkOrderStatus(Long orderId) {

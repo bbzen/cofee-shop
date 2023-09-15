@@ -4,7 +4,7 @@ import ru.ufanet.coffeeshop.event.*;
 import ru.ufanet.coffeeshop.model.OrderStatus;
 
 public class EventMapper {
-    public static EventDto eventDto(OrderRegisteredEvent event) {
+    public static EventDto toEventDto(OrderRegisteredEvent event) {
         return EventDto.builder()
                 .orderId(event.getOrderId())
                 .clientId(event.getClientId())
@@ -17,7 +17,7 @@ public class EventMapper {
                 .build();
     }
 
-    public static EventDto eventDto(OrderReadyEvent event) {
+    public static EventDto toEventDto(OrderReadyEvent event) {
         return EventDto.builder()
                 .orderId(event.getOrderId())
                 .employeeId(event.getEmployeeId())
@@ -26,7 +26,7 @@ public class EventMapper {
                 .build();
     }
 
-    public static EventDto eventDto(OrderInProgressEvent event) {
+    public static EventDto toEventDto(OrderInProgressEvent event) {
         return EventDto.builder()
                 .orderId(event.getOrderId())
                 .employeeId(event.getEmployeeId())
@@ -35,7 +35,7 @@ public class EventMapper {
                 .build();
     }
 
-    public static EventDto eventDto(OrderDispatchedEvent event) {
+    public static EventDto toEventDto(OrderDispatchedEvent event) {
         return EventDto.builder()
                 .orderId(event.getOrderId())
                 .employeeId(event.getEmployeeId())
@@ -44,7 +44,7 @@ public class EventMapper {
                 .build();
     }
 
-    public static EventDto eventDto(OrderCanceledEvent event) {
+    public static EventDto toEventDto(OrderCanceledEvent event) {
         return EventDto.builder()
                 .orderId(event.getOrderId())
                 .employeeId(event.getEmployeeId())
