@@ -46,7 +46,7 @@ class OrderAggregateTest {
     }
 
     @Test
-    void getOrderByIdNormal() {
+    public void getOrderByIdNormal() {
         EventDto dto1 = new EventDto(1L, 21L, 31L, 33L, expectedTime, 44L, 10.0, OrderStatus.NEW, timestamp, null);
         EventDto dto2 = new EventDto(2L, 21L, 31L, 33L, expectedTime, 44L, 10.0, OrderStatus.IN_PROGRESS, timestamp, null);
         EventDto dto3 = new EventDto(2L, 21L, 31L, 33L, expectedTime, 44L, 10.0, OrderStatus.READY, timestamp, null);
@@ -75,7 +75,7 @@ class OrderAggregateTest {
     }
 
     @Test
-    void getOrderByIdNormalWithNulls() {
+    public void getOrderByIdNormalWithNulls() {
         EventDto dto1 = new EventDto(1L, 21L, null, null, null, null, null, null, null, null);
         events.add(dto1);
 
@@ -99,7 +99,7 @@ class OrderAggregateTest {
     }
 
     @Test
-    void getOrderByIdNormalChangeParams() {
+    public void getOrderByIdNormalChangeParams() {
         EventDto dto1 = new EventDto(1L, 21L, 63L, 73L, expectedTime.plusHours(1), 84L, 20.0, OrderStatus.DISPATCHED, timestamp.plusHours(1), null);
         events.add(dto1);
 
@@ -123,7 +123,7 @@ class OrderAggregateTest {
     }
 
     @Test
-    void getOrderByIdFailOrderId() {
+    public void getOrderByIdFailOrderId() {
         Exception thrown = assertThrows(OrderNotFoundException.class, () -> orderAggregate.getOrderById(order.getOrderId()));
 
         assertEquals("Заказ " + order.getOrderId() + " не найден.", thrown.getMessage());

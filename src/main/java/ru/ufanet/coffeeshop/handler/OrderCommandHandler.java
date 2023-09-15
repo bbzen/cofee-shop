@@ -1,6 +1,6 @@
 package ru.ufanet.coffeeshop.handler;
 
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,7 +11,7 @@ import ru.ufanet.coffeeshop.model.OrderStatus;
 import ru.ufanet.coffeeshop.repository.OrderRepository;
 
 @Slf4j
-@NoArgsConstructor
+@AllArgsConstructor
 @Component
 public class OrderCommandHandler {
     @Autowired
