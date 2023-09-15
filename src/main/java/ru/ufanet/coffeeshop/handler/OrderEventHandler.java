@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ufanet.coffeeshop.command.CreateOrderCommand;
 import ru.ufanet.coffeeshop.event.*;
+import ru.ufanet.coffeeshop.exception.EventNotFoundException;
 import ru.ufanet.coffeeshop.exception.OrderNotFoundException;
 import ru.ufanet.coffeeshop.exception.OrderStateException;
 import ru.ufanet.coffeeshop.mapper.EventMapper;
@@ -13,6 +14,8 @@ import ru.ufanet.coffeeshop.model.Order;
 import ru.ufanet.coffeeshop.model.OrderStatus;
 import ru.ufanet.coffeeshop.repository.EventRepository;
 import ru.ufanet.coffeeshop.repository.OrderRepository;
+
+import java.util.List;
 
 @Slf4j
 @Component
@@ -44,37 +47,48 @@ public class OrderEventHandler {
     public void handleOrderReadyEvent(OrderReadyEvent event) {
         log.info("Обрабатывается событие OrderReadyEvent: {}", event);
         Order order = orderRepository.findById(event.getOrderId()).orElseThrow(() -> new OrderNotFoundException("Заказ " + event.getOrderId() + " не найден."));
-        checkOrderStatus(event.getOrderId());
 
-        eventRepository.save(EventMapper.toEventDto(event));
+        checkOrderStatus(event.getOrderId());
+        EventDto eventDto = EventMapper.toEventDto(event);
+        eventDto.setStatus(OrderStatus.READY);
+        eventRepository.save(eventDto);
     }
 
     public void handleOrderInProgressEvent(OrderInProgressEvent event) {
         log.info("Обрабатывается событие OrderReadyEvent: {}", event);
         checkOrderStatus(event.getOrderId());
-
-        eventRepository.save(EventMapper.toEventDto(event));
+        EventDto eventDto = EventMapper.toEventDto(event);
+        eventDto.setStatus(OrderStatus.IN_PROGRESS);
+        eventRepository.save(eventDto);
     }
 
     public void handleOrderDispatchedEvent(OrderDispatchedEvent event) {
         log.info("Обрабатывается событие OrderDispatchedEvent: {}", event);
         checkOrderStatus(event.getOrderId());
-
-        eventRepository.save(EventMapper.toEventDto(event));
+        EventDto eventDto = EventMapper.toEventDto(event);
+        eventDto.setStatus(OrderStatus.DISPATCHED);
+        eventRepository.save(eventDto);
     }
 
     public void handleOrderCanceledEvent(OrderCanceledEvent event) {
         log.info("Обрабатывается событие OrderCanceledEvent: {}", event);
         checkOrderExists(event.getOrderId());
-
-        eventRepository.save(EventMapper.toEventDto(event));
+        EventDto eventDto = EventMapper.toEventDto(event);
+        eventDto.setStatus(OrderStatus.CANCELED);
+        eventRepository.save(eventDto);
     }
 
     private void checkOrderStatus(Long orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Заказ " + orderId + " не найден."));
-        if (order.getStatus() == OrderStatus.DISPATCHED || order.getStatus() == OrderStatus.CANCELED) {
-            throw new OrderStateException("Заказ отменен или завершен. Невозможно записать новое событие по заказу.");
+        List<EventDto> eventDtos = eventRepository.findAllByOrderIdOrderByEventId(orderId);
+        if (eventDtos.isEmpty()) {
+            throw new EventNotFoundException("Заказ " + orderId + " не найден.");
         }
+        eventDtos.stream()
+                .map(EventDto::getStatus)
+                .filter(s -> s.equals(OrderStatus.DISPATCHED) || s.equals(OrderStatus.CANCELED))
+                .findFirst()
+                .ifPresent(s -> {throw new OrderStateException("Заказ отменен или завершен. Невозможно записать новое событие по заказу.");});
+
     }
 
     private void checkOrderExists(Long orderId) {
