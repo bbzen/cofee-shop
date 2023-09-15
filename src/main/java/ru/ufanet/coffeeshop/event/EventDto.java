@@ -1,9 +1,6 @@
 package ru.ufanet.coffeeshop.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.ufanet.coffeeshop.model.CancelCause;
 import ru.ufanet.coffeeshop.model.OrderStatus;
 
@@ -11,6 +8,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -26,7 +24,7 @@ public class EventDto {
     private LocalDateTime expectedTime;
     private Long productId;
     private Double productCost;
-    private LocalDateTime timestamp;
     private OrderStatus status;
+    private LocalDateTime timestamp;
     private CancelCause cause;
 }
