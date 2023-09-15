@@ -39,6 +39,7 @@ public class OrderEventHandler {
                 event.getProductId(),
                 event.getProductCost(),
                 event.getTimestamp());
+
         Order order = orderCommandHandler.handleCreateOrderCommand(createOrderCommand);
         eventRepository.save(EventMapper.toEventDto(event));
         return order;
@@ -46,9 +47,9 @@ public class OrderEventHandler {
 
     public void handleOrderReadyEvent(OrderReadyEvent event) {
         log.info("Обрабатывается событие OrderReadyEvent: {}", event);
-        Order order = orderRepository.findById(event.getOrderId()).orElseThrow(() -> new OrderNotFoundException("Заказ " + event.getOrderId() + " не найден."));
-
+        checkOrderExists(event.getOrderId());
         checkOrderStatus(event.getOrderId());
+
         EventDto eventDto = EventMapper.toEventDto(event);
         eventDto.setStatus(OrderStatus.READY);
         eventRepository.save(eventDto);
@@ -56,7 +57,9 @@ public class OrderEventHandler {
 
     public void handleOrderInProgressEvent(OrderInProgressEvent event) {
         log.info("Обрабатывается событие OrderReadyEvent: {}", event);
+        checkOrderExists(event.getOrderId());
         checkOrderStatus(event.getOrderId());
+
         EventDto eventDto = EventMapper.toEventDto(event);
         eventDto.setStatus(OrderStatus.IN_PROGRESS);
         eventRepository.save(eventDto);
@@ -64,7 +67,9 @@ public class OrderEventHandler {
 
     public void handleOrderDispatchedEvent(OrderDispatchedEvent event) {
         log.info("Обрабатывается событие OrderDispatchedEvent: {}", event);
+        checkOrderExists(event.getOrderId());
         checkOrderStatus(event.getOrderId());
+
         EventDto eventDto = EventMapper.toEventDto(event);
         eventDto.setStatus(OrderStatus.DISPATCHED);
         eventRepository.save(eventDto);
@@ -73,8 +78,10 @@ public class OrderEventHandler {
     public void handleOrderCanceledEvent(OrderCanceledEvent event) {
         log.info("Обрабатывается событие OrderCanceledEvent: {}", event);
         checkOrderExists(event.getOrderId());
+
         EventDto eventDto = EventMapper.toEventDto(event);
         eventDto.setStatus(OrderStatus.CANCELED);
+        eventDto.setCause(event.getCause());
         eventRepository.save(eventDto);
     }
 

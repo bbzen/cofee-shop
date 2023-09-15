@@ -8,12 +8,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.ufanet.coffeeshop.command.CreateOrderCommand;
-import ru.ufanet.coffeeshop.event.EventDto;
-import ru.ufanet.coffeeshop.event.OrderReadyEvent;
-import ru.ufanet.coffeeshop.event.OrderRegisteredEvent;
+import ru.ufanet.coffeeshop.event.*;
 import ru.ufanet.coffeeshop.exception.EventNotFoundException;
 import ru.ufanet.coffeeshop.exception.OrderNotFoundException;
 import ru.ufanet.coffeeshop.exception.OrderStateException;
+import ru.ufanet.coffeeshop.model.CancelCause;
 import ru.ufanet.coffeeshop.model.Order;
 import ru.ufanet.coffeeshop.model.OrderStatus;
 import ru.ufanet.coffeeshop.repository.EventRepository;
@@ -152,14 +151,66 @@ class OrderEventHandlerTest {
     }
 
     @Test
-    public void handleOrderInProgressEvent() {
+    public void handleOrderInProgressEventNormal() {
+        LocalDateTime expectedTime = LocalDateTime.now().plusHours(1);
+        LocalDateTime timestamp = LocalDateTime.now();
+        OrderInProgressEvent srcEvent = new OrderInProgressEvent(21L, 41L, timestamp);
+        EventDto srcEventDto = new EventDto(11L, 21L, 31L, 41L, expectedTime, 51L, 10.0, OrderStatus.NEW, timestamp, null);
+        Order srcOrder = new Order(21L, 31L, 41L, expectedTime, 51L, 10.0, timestamp);
+        when(orderRepository.findById(anyLong()))
+                .thenReturn(Optional.of(srcOrder));
+        when(eventRepository.findAllByOrderIdOrderByEventId(anyLong()))
+                .thenReturn(List.of(srcEventDto));
+
+        orderEventHandler.handleOrderInProgressEvent(srcEvent);
+        verify(eventRepository).save(eventDtoArgumentCaptor.capture());
+        EventDto eventDto = eventDtoArgumentCaptor.getValue();
+
+        assertEquals(srcEvent.getOrderId(), eventDto.getOrderId());
+        assertEquals(srcEvent.getEmployeeId(), eventDto.getEmployeeId());
+        assertEquals(OrderStatus.IN_PROGRESS, eventDto.getStatus());
+        assertEquals(srcEvent.getTimestamp(), eventDto.getTimestamp());
     }
 
     @Test
-    public void handleOrderDispatchedEvent() {
+    public void handleOrderDispatchedEventNormal() {
+        LocalDateTime expectedTime = LocalDateTime.now().plusHours(1);
+        LocalDateTime timestamp = LocalDateTime.now();
+        OrderDispatchedEvent srcEvent = new OrderDispatchedEvent(21L, 41L, timestamp);
+        EventDto srcEventDto = new EventDto(11L, 21L, 31L, 41L, expectedTime, 51L, 10.0, OrderStatus.IN_PROGRESS, timestamp, null);
+        Order srcOrder = new Order(21L, 31L, 41L, expectedTime, 51L, 10.0, timestamp);
+        when(orderRepository.findById(anyLong()))
+                .thenReturn(Optional.of(srcOrder));
+        when(eventRepository.findAllByOrderIdOrderByEventId(anyLong()))
+                .thenReturn(List.of(srcEventDto));
+
+        orderEventHandler.handleOrderDispatchedEvent(srcEvent);
+        verify(eventRepository).save(eventDtoArgumentCaptor.capture());
+        EventDto eventDto = eventDtoArgumentCaptor.getValue();
+
+        assertEquals(srcEvent.getOrderId(), eventDto.getOrderId());
+        assertEquals(srcEvent.getEmployeeId(), eventDto.getEmployeeId());
+        assertEquals(OrderStatus.DISPATCHED, eventDto.getStatus());
+        assertEquals(srcEvent.getTimestamp(), eventDto.getTimestamp());
     }
 
     @Test
-    public void handleOrderCanceledEvent() {
+    public void handleOrderCanceledEventNormal() {
+        LocalDateTime expectedTime = LocalDateTime.now().plusHours(1);
+        LocalDateTime timestamp = LocalDateTime.now();
+        OrderCanceledEvent srcEvent = new OrderCanceledEvent(21L, 41L, CancelCause.CLIENT_WISH, timestamp);
+        Order srcOrder = new Order(21L, 31L, 41L, expectedTime, 51L, 10.0, timestamp);
+        when(orderRepository.findById(anyLong()))
+                .thenReturn(Optional.of(srcOrder));
+
+        orderEventHandler.handleOrderCanceledEvent(srcEvent);
+        verify(eventRepository).save(eventDtoArgumentCaptor.capture());
+        EventDto eventDto = eventDtoArgumentCaptor.getValue();
+
+        assertEquals(srcEvent.getOrderId(), eventDto.getOrderId());
+        assertEquals(srcEvent.getEmployeeId(), eventDto.getEmployeeId());
+        assertEquals(OrderStatus.CANCELED, eventDto.getStatus());
+        assertEquals(srcEvent.getTimestamp(), eventDto.getTimestamp());
+        assertEquals(srcEvent.getCause(), eventDto.getCause());
     }
 }
