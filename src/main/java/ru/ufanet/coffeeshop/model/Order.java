@@ -5,10 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Getter
@@ -16,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "orders")
 public class Order {
     @Id
     private Long orderId;
@@ -27,6 +25,8 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private LocalDateTime timestamp;
+    @Enumerated(EnumType.STRING)
+    private CancelCause cause;
 
     public Order(Long orderId, Long clientId, Long employeeId, LocalDateTime expectedTime, Long productId, Double productCost, LocalDateTime timestamp) {
         this.orderId = orderId;
