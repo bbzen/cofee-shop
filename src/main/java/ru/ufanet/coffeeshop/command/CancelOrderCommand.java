@@ -6,7 +6,7 @@ import ru.ufanet.coffeeshop.model.CancelCause;
 import java.time.LocalDateTime;
 
 @Data
-public class CancelOrderCommand {
+public class CancelOrderCommand implements OrderCommand {
     private final Long orderId;
     private final Long employeeId;
     private final CancelCause cause;

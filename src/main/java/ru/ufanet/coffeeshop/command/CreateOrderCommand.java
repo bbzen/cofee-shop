@@ -5,8 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class CreateOrderCommand {
-
+public class CreateOrderCommand implements OrderCommand {
     private final Long orderId;
     private final Long clientId;
     private final Long employeeId;

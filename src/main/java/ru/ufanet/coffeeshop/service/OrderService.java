@@ -2,13 +2,13 @@ package ru.ufanet.coffeeshop.service;
 
 import org.springframework.stereotype.Service;
 import ru.ufanet.coffeeshop.event.OrderEvent;
-import ru.ufanet.coffeeshop.model.OrderView;
+import ru.ufanet.coffeeshop.model.Order;
 
 @Service
 interface OrderService {
 
     void publishEvent(OrderEvent event);
 
-    OrderView findOrder(int id);
+    Order findOrder(int id);
 
 }

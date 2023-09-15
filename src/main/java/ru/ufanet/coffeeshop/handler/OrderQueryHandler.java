@@ -5,9 +5,9 @@ import org.axonframework.queryhandling.QueryHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ufanet.coffeeshop.exception.OrderNotFoundException;
-import ru.ufanet.coffeeshop.model.OrderView;
+import ru.ufanet.coffeeshop.model.Order;
 import ru.ufanet.coffeeshop.query.OrderQuery;
-import ru.ufanet.coffeeshop.repository.OrderViewRepository;
+import ru.ufanet.coffeeshop.repository.OrderJpaRepository;
 
 import java.util.Optional;
 
@@ -15,13 +15,13 @@ import java.util.Optional;
 @Component
 public class OrderQueryHandler {
     @Autowired
-    OrderViewRepository orderViewRepository;
+    OrderJpaRepository orderViewJpaRepository;
 
     @QueryHandler
-    public OrderView handle(OrderQuery query) {
+    public Order handle(OrderQuery query) {
         log.info("Handling OrderQuery: {}", query);
 
-        Optional<OrderView> order = orderViewRepository.findById(query.getOrderId());
+        Optional<Order> order = orderViewJpaRepository.findById(query.getOrderId());
         if (order.isEmpty())
             throw new OrderNotFoundException("Заказ не найден.");
         return order.get();
