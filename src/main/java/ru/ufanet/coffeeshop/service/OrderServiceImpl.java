@@ -14,11 +14,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order publishEvent(OrderRegisteredEvent event) {
-        return null;
+        return orderEventHandler.handleOrderRegisteredEvent(event);
     }
 
     @Override
-    public Order findOrder(int id) {
-        return null;
+    public Order findOrder(Long orderId) {
+        return orderAggregate.getOrderById(orderId);
     }
 }

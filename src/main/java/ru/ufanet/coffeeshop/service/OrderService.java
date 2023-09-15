@@ -8,6 +8,6 @@ import ru.ufanet.coffeeshop.model.Order;
 interface OrderService {
     Order publishEvent(OrderRegisteredEvent event);
 
-    Order findOrder(int id);
+    Order findOrder(Long id);
 
 }

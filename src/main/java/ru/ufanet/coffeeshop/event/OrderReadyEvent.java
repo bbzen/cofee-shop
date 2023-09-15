@@ -1,14 +1,10 @@
 package ru.ufanet.coffeeshop.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@AllArgsConstructor
+@Data
 public class OrderReadyEvent {
     private Long orderId;
     private Long employeeId;

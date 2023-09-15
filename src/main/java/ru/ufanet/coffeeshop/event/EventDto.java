@@ -7,16 +7,14 @@ import lombok.NoArgsConstructor;
 import ru.ufanet.coffeeshop.model.CancelCause;
 import ru.ufanet.coffeeshop.model.OrderStatus;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Entity
 @Table(name = "events")
 public class EventDto {
     @Id
