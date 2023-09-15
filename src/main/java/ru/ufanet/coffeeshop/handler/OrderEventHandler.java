@@ -1,78 +1,85 @@
 package ru.ufanet.coffeeshop.handler;
 
 import lombok.extern.slf4j.Slf4j;
-import org.axonframework.eventhandling.EventHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ufanet.coffeeshop.command.CreateOrderCommand;
 import ru.ufanet.coffeeshop.event.*;
 import ru.ufanet.coffeeshop.exception.OrderNotFoundException;
 import ru.ufanet.coffeeshop.exception.OrderStateException;
+import ru.ufanet.coffeeshop.mapper.EventMapper;
 import ru.ufanet.coffeeshop.model.Order;
 import ru.ufanet.coffeeshop.model.OrderStatus;
-import ru.ufanet.coffeeshop.repository.OrderJpaRepository;
+import ru.ufanet.coffeeshop.repository.EventRepository;
 
 @Slf4j
 @Component
-public class OrderViewProjectionEventHandler {
+public class OrderEventHandler {
     @Autowired
-    private OrderJpaRepository orderViewJpaRepository;
+    private OrderCommandHandler orderCommandHandler;
+    @Autowired
+    private EventRepository eventRepository;
 
-    @EventHandler
-    public void handleOrderRegisteredEvent(OrderRegisteredEvent event) {
+    public Order handleOrderRegisteredEvent(OrderRegisteredEvent event) {
         log.info("Обрабатывается событие OrderRegisteredEvent: {}", event);
 
-        Order order = new Order(event.getClientId(),
+        CreateOrderCommand createOrderCommand = new CreateOrderCommand(
+                event.getOrderId(),
+                event.getClientId(),
                 event.getEmployeeId(),
                 event.getExpectedTime(),
                 event.getProductId(),
                 event.getProductCost(),
                 event.getTimestamp());
-        order.setStatus(OrderStatus.NEW);
-        orderViewJpaRepository.save(order);
+        Order order = orderCommandHandler.handleCreateOrderCommand(createOrderCommand);
+        eventRepository.save(EventMapper.eventDto(event));
+        return order;
     }
 
-    @EventHandler
     public void handleOrderReadyEvent(OrderReadyEvent event) {
         log.info("Обрабатывается событие OrderReadyEvent: {}", event);
 
-        Order order = getOrderView(event.getOrderId());
-        checkOrderStatus(order);
-        order.setStatus(OrderStatus.NEW);
-        orderViewJpaRepository.save(order);
+        CreateOrderCommand createOrderCommand = new CreateOrderCommand(
+                event.getOrderId(),
+                event.getClientId(),
+                event.getEmployeeId(),
+                event.getExpectedTime(),
+                event.getProductId(),
+                event.getProductCost(),
+                event.getTimestamp());
+        Order order = orderCommandHandler.handleCreateOrderCommand(createOrderCommand);
+        eventRepository.save(EventMapper.eventDto(event));
     }
 
-    @EventHandler
     public void handleOrderInProgressEvent(OrderInProgressEvent event) {
         log.info("Обрабатывается событие OrderReadyEvent: {}", event);
 
         Order order = getOrderView(event.getOrderId());
         checkOrderStatus(order);
         order.setStatus(OrderStatus.IN_PROGRESS);
-        orderViewJpaRepository.save(order);
+        orderRepository.save(order);
     }
 
-    @EventHandler
     public void handleOrderDispatchedEvent(OrderDispatchedEvent event) {
         log.info("Обрабатывается событие OrderDispatchedEvent: {}", event);
 
         Order order = getOrderView(event.getOrderId());
         checkOrderStatus(order);
         order.setStatus(OrderStatus.DISPATCHED);
-        orderViewJpaRepository.save(order);
+        orderRepository.save(order);
     }
 
-    @EventHandler
     public void handleOrderCanceledEvent(OrderCanceledEvent event) {
         log.info("Обрабатывается событие OrderCanceledEvent: {}", event);
 
         Order order = getOrderView(event.getOrderId());
         checkOrderStatus(order);
         order.setStatus(OrderStatus.CANCELED);
-        orderViewJpaRepository.save(order);
+        orderRepository.save(order);
     }
 
     private Order getOrderView(Long orderId) {
-        return orderViewJpaRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Заказ номер " + orderId + " не найден."));
+        return orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Заказ номер " + orderId + " не найден."));
     }
 
     private void checkOrderStatus(Order order) {
