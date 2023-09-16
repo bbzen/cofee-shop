@@ -27,4 +27,16 @@ public class EventDto {
     private OrderStatus status;
     private LocalDateTime timestamp;
     private CancelCause cause;
+
+    public EventDto(Long orderId, Long clientId, Long employeeId, LocalDateTime expectedTime, Long productId, Double productCost, OrderStatus status, LocalDateTime timestamp, CancelCause cause) {
+        this.orderId = orderId;
+        this.clientId = clientId;
+        this.employeeId = employeeId;
+        this.expectedTime = expectedTime;
+        this.productId = productId;
+        this.productCost = productCost;
+        this.status = status;
+        this.timestamp = timestamp;
+        this.cause = cause;
+    }
 }
