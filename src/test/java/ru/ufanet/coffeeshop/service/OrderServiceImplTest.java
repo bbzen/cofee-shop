@@ -4,8 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.ufanet.coffeeshop.event.EventDto;
-import ru.ufanet.coffeeshop.event.OrderRegisteredEvent;
+import ru.ufanet.coffeeshop.event.*;
 import ru.ufanet.coffeeshop.model.Order;
 import ru.ufanet.coffeeshop.model.OrderStatus;
 import ru.ufanet.coffeeshop.repository.EventRepository;
@@ -69,6 +68,27 @@ class OrderServiceImplIntegrationTest {
     @Test
     @DirtiesContext
     void findOrder() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime expectedTime = LocalDateTime.now().plusHours(1);
+        OrderRegisteredEvent eventNew = new OrderRegisteredEvent(21L, 31L, 41L, expectedTime, 51L, 10.0, LocalDateTime.now());
+        OrderInProgressEvent eventInProgress = new OrderInProgressEvent(21L, 31L, LocalDateTime.now());
+        OrderReadyEvent eventReady = new OrderReadyEvent(21L, 31L, LocalDateTime.now());
+        OrderDispatchedEvent eventDispatched = new OrderDispatchedEvent(21L, 33L, LocalDateTime.now());
 
+        orderService.publishEvent(eventNew);
+        orderService.inProgressEvent(eventInProgress);
+        orderService.readyEvent(eventReady);
+        orderService.dispatchedEvent(eventDispatched);
+        Order resultOrder = orderService.findOrder(eventNew.getOrderId());
+
+        assertEquals(eventNew.getOrderId(), resultOrder.getOrderId());
+        assertEquals(eventNew.getClientId(), resultOrder.getClientId());
+        assertEquals(eventDispatched.getEmployeeId(), resultOrder.getEmployeeId());
+        assertEquals(eventNew.getExpectedTime().format(formatter), resultOrder.getExpectedTime().format(formatter));
+        assertEquals(eventNew.getProductId(), resultOrder.getProductId());
+        assertEquals(eventNew.getProductCost(), resultOrder.getProductCost());
+        assertEquals(OrderStatus.DISPATCHED, resultOrder.getStatus());
+        assertEquals(eventDispatched.getTimestamp().format(formatter), resultOrder.getTimestamp().format(formatter));
+        assertNull(resultOrder.getCause());
     }
 }
