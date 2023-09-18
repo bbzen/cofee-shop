@@ -1,5 +1,9 @@
 package ru.ufanet.coffeeshop.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +30,8 @@ class OrderServiceImplIntegrationTest {
     private EventRepository eventRepository;
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @Test
     @DirtiesContext
@@ -68,6 +74,7 @@ class OrderServiceImplIntegrationTest {
 
     @Test
     @DirtiesContext
+    @SneakyThrows
     void findOrder() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime expectedTime = LocalDateTime.now().plusHours(1);
@@ -81,15 +88,23 @@ class OrderServiceImplIntegrationTest {
         orderService.readyEvent(eventReady);
         orderService.dispatchedEvent(eventDispatched);
         OrderTransferDto resultOrder = orderService.findOrder(eventNew.getOrderId());
+        List<EventDto> resultEvents = mapper.readValue(resultOrder.getEvents(), new TypeReference<List<EventDto>>() {
+        });
 
         assertEquals(eventNew.getOrderId(), resultOrder.getOrderId());
         assertEquals(eventNew.getClientId(), resultOrder.getClientId());
-        assertEquals(eventDispatched.getEmployeeId(), resultOrder.getEmployeeId());
         assertEquals(eventNew.getExpectedTime().format(formatter), resultOrder.getExpectedTime().format(formatter));
         assertEquals(eventNew.getProductId(), resultOrder.getProductId());
         assertEquals(eventNew.getProductCost(), resultOrder.getProductCost());
-        assertEquals(OrderStatus.DISPATCHED, resultOrder.getStatus());
-        assertEquals(eventDispatched.getTimestamp().format(formatter), resultOrder.getTimestamp().format(formatter));
-        assertNull(resultOrder.getCause());
+        assertEquals(OrderStatus.NEW, resultOrder.getStatus());
+
+        assertEquals(1L, resultEvents.get(0).getEventId());
+        assertEquals(OrderStatus.NEW, resultEvents.get(0).getStatus());
+        assertEquals(2L, resultEvents.get(1).getEventId());
+        assertEquals(OrderStatus.IN_PROGRESS, resultEvents.get(1).getStatus());
+        assertEquals(3L, resultEvents.get(2).getEventId());
+        assertEquals(OrderStatus.READY, resultEvents.get(2).getStatus());
+        assertEquals(4L, resultEvents.get(3).getEventId());
+        assertEquals(OrderStatus.DISPATCHED, resultEvents.get(3).getStatus());
     }
 }
