@@ -8,7 +8,7 @@ import ru.ufanet.coffeeshop.event.OrderInProgressEvent;
 import ru.ufanet.coffeeshop.event.OrderReadyEvent;
 import ru.ufanet.coffeeshop.event.OrderRegisteredEvent;
 import ru.ufanet.coffeeshop.handler.OrderEventHandler;
-import ru.ufanet.coffeeshop.model.Order;
+import ru.ufanet.coffeeshop.model.OrderTransferDto;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -18,7 +18,7 @@ public class OrderServiceImpl implements OrderService {
     private OrderAggregate orderAggregate;
 
     @Override
-    public Order publishEvent(OrderRegisteredEvent event) {
+    public OrderTransferDto publishEvent(OrderRegisteredEvent event) {
         return orderEventHandler.handleOrderRegisteredEvent(event);
     }
 
@@ -38,7 +38,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order findOrder(Long orderId) {
+    public OrderTransferDto findOrder(Long orderId) {
         return orderAggregate.getOrderById(orderId);
     }
 }

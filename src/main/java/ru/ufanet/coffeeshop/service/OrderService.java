@@ -6,10 +6,11 @@ import ru.ufanet.coffeeshop.event.OrderInProgressEvent;
 import ru.ufanet.coffeeshop.event.OrderReadyEvent;
 import ru.ufanet.coffeeshop.event.OrderRegisteredEvent;
 import ru.ufanet.coffeeshop.model.Order;
+import ru.ufanet.coffeeshop.model.OrderTransferDto;
 
 @Service
 interface OrderService {
-    Order publishEvent(OrderRegisteredEvent event);
+    OrderTransferDto publishEvent(OrderRegisteredEvent event);
 
     void inProgressEvent(OrderInProgressEvent event);
 
@@ -17,6 +18,6 @@ interface OrderService {
 
     void dispatchedEvent(OrderDispatchedEvent event);
 
-    Order findOrder(Long id);
+    OrderTransferDto findOrder(Long id);
 
 }

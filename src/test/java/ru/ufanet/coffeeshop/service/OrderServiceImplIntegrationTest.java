@@ -7,6 +7,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import ru.ufanet.coffeeshop.event.*;
 import ru.ufanet.coffeeshop.model.Order;
 import ru.ufanet.coffeeshop.model.OrderStatus;
+import ru.ufanet.coffeeshop.model.OrderTransferDto;
 import ru.ufanet.coffeeshop.repository.EventRepository;
 import ru.ufanet.coffeeshop.repository.OrderRepository;
 
@@ -79,7 +80,7 @@ class OrderServiceImplIntegrationTest {
         orderService.inProgressEvent(eventInProgress);
         orderService.readyEvent(eventReady);
         orderService.dispatchedEvent(eventDispatched);
-        Order resultOrder = orderService.findOrder(eventNew.getOrderId());
+        OrderTransferDto resultOrder = orderService.findOrder(eventNew.getOrderId());
 
         assertEquals(eventNew.getOrderId(), resultOrder.getOrderId());
         assertEquals(eventNew.getClientId(), resultOrder.getClientId());

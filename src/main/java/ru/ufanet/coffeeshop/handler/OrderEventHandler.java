@@ -10,8 +10,10 @@ import ru.ufanet.coffeeshop.exception.EventNotFoundException;
 import ru.ufanet.coffeeshop.exception.OrderNotFoundException;
 import ru.ufanet.coffeeshop.exception.OrderStateException;
 import ru.ufanet.coffeeshop.mapper.EventMapper;
+import ru.ufanet.coffeeshop.mapper.OrderMapper;
 import ru.ufanet.coffeeshop.model.Order;
 import ru.ufanet.coffeeshop.model.OrderStatus;
+import ru.ufanet.coffeeshop.model.OrderTransferDto;
 import ru.ufanet.coffeeshop.repository.EventRepository;
 import ru.ufanet.coffeeshop.repository.OrderRepository;
 
@@ -28,7 +30,7 @@ public class OrderEventHandler {
     @Autowired
     private EventRepository eventRepository;
 
-    public Order handleOrderRegisteredEvent(OrderRegisteredEvent event) {
+    public OrderTransferDto handleOrderRegisteredEvent(OrderRegisteredEvent event) {
         log.info("Обрабатывается событие OrderRegisteredEvent: {}", event);
 
         CreateOrderCommand createOrderCommand = new CreateOrderCommand(
@@ -42,7 +44,7 @@ public class OrderEventHandler {
 
         Order order = orderCommandHandler.handleCreateOrderCommand(createOrderCommand);
         eventRepository.save(EventMapper.toEventDto(event));
-        return order;
+        return OrderMapper.toTransferDto(order);
     }
 
     public void handleOrderReadyEvent(OrderReadyEvent event) {
